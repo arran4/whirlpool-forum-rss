@@ -55,26 +55,22 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * ./go/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
+   */15 * * * * ~/go/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
    ```
 
+Remember to modify `~` with the correct value and `go/bin` too if you're using a custom go env location
+
 #### systemd (as root)
-1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.timer`:
+1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.service`:
 ```ini
 [Unit]
 Description=ABC News Just-in RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
+ExecStart=/usr/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
 User=apache
 Group=apache
-
-[Timer]
-OnCalendar=*-*-* *:~15:00
-
-[Install]
-WantedBy=timers.target
 ```
 2. Reload systemd and start the service:
    ```bash
@@ -83,24 +79,38 @@ WantedBy=timers.target
    ```
 
 #### systemd (as user)
-1. Create a systemd service file at `$HOME/.config/systemd/user/abcjustinrss.timer`:
+1. Create a systemd service file at `$HOME/.config/systemd/user/abcjustinrss.service`:
 ```ini
 [Unit]
 Description=ABC News Just-in RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
+ExecStart=$HOME/go/bin/abcjustinrss -output ${HOME}/public_html/rss/abcjustinrss.xml
+```
+
+2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
+
+```ini
+[Unit]
+Description=Monthly Timer for %i service
 
 [Timer]
-OnCalendar=*-*-* *:~15:00
+OnCalendar=*-*-* *:00:00
+AccuracySec=1h
+RandomizedDelaySec=1h
+Persistent=true
+Unit=%i.service
 
 [Install]
-WantedBy=timers.target
+WantedBy=default.target
 ```
+
+Remember to modify $HOME with the correct value and `go/bin` too if you're using a custom go env location
+
 2. Reload systemd and start the service:
    ```bash
-   systemctl --user enable --now abcjustinrss.timer
+   systemctl --user daemon-reload && systemctl --user enable --now everyhour@abcjustinrss.timer
    ```
 
 #### Apache VirtualHost Configuration
