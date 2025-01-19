@@ -7,6 +7,15 @@ builds:
     dir: cmd/abcjustinrss
     env:
       - CGO_ENABLED=0
+#  -
+#    id: "abcjustinrss-cgi"
+#    binary: "abcjustinrss-cgi"
+#    dir: cmd/abcjustinrss-cgi
+#    env:
+#      - CGO_ENABLED=0
+#    goos: [linux]
+#    goarch: [amd64, arm64]
+#    flags: ["-tags=netgo", "-trimpath"]
 archives:
   -
     format_overrides:
