@@ -72,10 +72,28 @@ ExecStart=/usr/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinr
 User=apache
 Group=apache
 ```
-2. Reload systemd and start the service:
+
+2. Create a systemd timer file at `/etc/systemd/system/everyhour@.timer`:
+
+```ini
+[Unit]
+Description=Monthly Timer for %i service
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+AccuracySec=1h
+RandomizedDelaySec=1h
+Persistent=true
+Unit=%i.service
+
+[Install]
+WantedBy=default.target
+```
+
+3. Reload systemd and start the service:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable --now abcjustinrss.timer
+   sudo systemctl enable --now everyhour@abcjustinrss.timer
    ```
 
 #### systemd (as user)
@@ -88,6 +106,8 @@ Description=ABC News Just-in RSS Feed Creator
 Type=oneshot
 ExecStart=$HOME/go/bin/abcjustinrss -output ${HOME}/public_html/rss/abcjustinrss.xml
 ```
+
+Remember to modify $HOME with the correct value and `go/bin` too if you're using a custom go env location
 
 2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
 
@@ -106,14 +126,18 @@ Unit=%i.service
 WantedBy=default.target
 ```
 
-Remember to modify $HOME with the correct value and `go/bin` too if you're using a custom go env location
-
-2. Reload systemd and start the service:
+3. Reload systemd and start the service:
    ```bash
    systemctl --user daemon-reload && systemctl --user enable --now everyhour@abcjustinrss.timer
    ```
 
 #### Apache VirtualHost Configuration
+##### User
+
+Refer to documentation for setting up public_html directories
+
+##### System
+
 Add the following configuration to your Apache setup (e.g., `/etc/httpd/conf.d/rss.conf`):
 ```apache
 <VirtualHost *:80>
@@ -128,6 +152,12 @@ Add the following configuration to your Apache setup (e.g., `/etc/httpd/conf.d/r
 ```
 
 #### Nginx Configuration
+##### User
+
+Refer to documentation for setting up public_html directories
+
+##### System
+
 Add this to your Nginx server block:
 ```nginx
 server {
