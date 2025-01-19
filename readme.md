@@ -7,20 +7,47 @@ This application scrapes the "Just In" section of ABC News and generates an RSS 
 
 ### Prerequisites
 - **Go** (if building from source)
+
+#### Optional
 - **Apache or Nginx** (for serving RSS files)
-- **Docker** (optional, for containerized deployment)
 
 ### Build and Install
+
+#### Install only (System level)
+
+Grab the latest binary here, deb, rpm, etc: https://github.com/arran4/abc-justin-rss/releases/
+
+#### Install and build as user (User)
+
+Install go 1.23+
+
+Run `go install`:
+```bash
+go install github.com/arran4/abc-justin-rss@latest
+```
+
+This installs to `$HOME/go/bin`
 
 ### Usage
 #### Generate RSS Feed
 ```bash
-abcjustinrss -output /var/www/localhost/htdocs/rss/feed.xml
+abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
 ```
 
 ### Deployment
 
-#### rc.d (Cron Job)
+#### rc.d (Cron Job system level)
+Add a cron job to run the script periodically:
+1. Edit the root crontab:
+   ```bash
+   sudo crontab -e
+   ```
+2. Add the following line:
+   ```bash
+   */15 * * * * /usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
+   ```
+
+#### rc.d (Cron Job user level)
 Add a cron job to run the script periodically:
 1. Edit the user's crontab:
    ```bash
@@ -28,29 +55,52 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * /usr/local/bin/abcjustinrss -output ~/public_html/rss/feed.xml
+   */15 * * * * ./go/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
    ```
 
-#### systemd
-1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.service`:
+#### systemd (as root)
+1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.timer`:
 ```ini
 [Unit]
-Description=RSS Feed Creator
-After=network.target
+Description=ABC News Just-in RSS Feed Creator
 
 [Service]
-ExecStart=/usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/feed.xml
+Type=oneshot
+ExecStart=/usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
 User=apache
 Group=apache
-Restart=on-failure
+
+[Timer]
+OnCalendar=*-*-* *:~15:00
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=timers.target
 ```
 2. Reload systemd and start the service:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable --now abcjustinrss
+   sudo systemctl enable --now abcjustinrss.timer
+   ```
+
+#### systemd (as user)
+1. Create a systemd service file at `/home/arran/.config/systemd/user/abcjustinrss.timer`:
+```ini
+[Unit]
+Description=ABC News Just-in RSS Feed Creator
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
+
+[Timer]
+OnCalendar=*-*-* *:~15:00
+
+[Install]
+WantedBy=timers.target
+```
+2. Reload systemd and start the service:
+   ```bash
+   systemctl --user enable --now abcjustinrss.timer
    ```
 
 #### Apache VirtualHost Configuration

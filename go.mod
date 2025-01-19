@@ -1,4 +1,4 @@
-module github.com/arran4/abcjustinrss
+module github.com/arran4/abc-justin-rss
 
 go 1.23
 

@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/arran4/abcjustinrss"
+	"github.com/arran4/abc-justin-rss"
 	"io"
 	"log"
 	"os"
