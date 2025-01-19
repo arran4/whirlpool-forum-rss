@@ -4,7 +4,7 @@ builds:
   -
     id: "abcjustinrss"
     binary: "abcjustinrss"
-    dir: cmd/cli
+    dir: cmd/abcjustinrss
     env:
       - CGO_ENABLED=0
 archives:

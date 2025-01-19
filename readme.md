@@ -23,10 +23,10 @@ Install go 1.23+
 
 Run `go install`:
 ```bash
-go install github.com/arran4/abc-justin-rss@latest
+go install github.com/arran4/abc-justin-rss/cmd/abcjustinrss@latest
 ```
 
-This installs to `$HOME/go/bin`
+This installs to `$HOME/go/bin` (typically check with `go env`)
 
 ### Usage
 #### Generate RSS Feed
