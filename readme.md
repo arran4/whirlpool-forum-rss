@@ -15,7 +15,7 @@ This application scrapes the "Just In" section of ABC News and generates an RSS 
 ### Usage
 #### Generate RSS Feed
 ```bash
-rss-feed-creator -output /var/www/localhost/htdocs/rss/feed.xml
+abcjustinrss -output /var/www/localhost/htdocs/rss/feed.xml
 ```
 
 ### Deployment
@@ -28,18 +28,18 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * /usr/local/bin/rss-feed-creator -output ~/public_html/rss/feed.xml
+   */15 * * * * /usr/local/bin/abcjustinrss -output ~/public_html/rss/feed.xml
    ```
 
 #### systemd
-1. Create a systemd service file at `/etc/systemd/system/rss-feed-creator.service`:
+1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.service`:
 ```ini
 [Unit]
 Description=RSS Feed Creator
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/rss-feed-creator -output /var/www/localhost/htdocs/rss/feed.xml
+ExecStart=/usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/feed.xml
 User=apache
 Group=apache
 Restart=on-failure
@@ -50,7 +50,7 @@ WantedBy=multi-user.target
 2. Reload systemd and start the service:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable --now rss-feed-creator
+   sudo systemctl enable --now abcjustinrss
    ```
 
 #### Apache VirtualHost Configuration
@@ -81,7 +81,3 @@ server {
 }
 ```
 
-Restart Nginx:
-```bash
-sudo systemctl restart nginx
-```
