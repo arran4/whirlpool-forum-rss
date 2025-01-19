@@ -136,6 +136,10 @@ WantedBy=default.target
 
 Refer to documentation for setting up public_html directories
 
+##### Enjoy
+
+http://localhost/~$USERNAME/rss/abcjustinrss.xml
+
 ##### System
 
 Add the following configuration to your Apache setup (e.g., `/etc/httpd/conf.d/rss.conf`):
@@ -150,6 +154,7 @@ Add the following configuration to your Apache setup (e.g., `/etc/httpd/conf.d/r
     </Directory>
 </VirtualHost>
 ```
+
 
 #### Nginx Configuration
 ##### User
