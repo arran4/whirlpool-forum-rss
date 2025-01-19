@@ -121,6 +121,7 @@ func FetchAndParseNewsToRSS() (error, RSS) {
 	for i, s := range doc.Find("article").EachIter() {
 		// Extract title and link
 		title := strings.TrimSpace(s.Find("a").Text())
+		description := strings.TrimSpace(s.Find("p").Text())
 		link, exists := s.Find("a").Attr("href")
 		if !exists || !IsArticleLink(link) {
 			continue
@@ -139,7 +140,7 @@ func FetchAndParseNewsToRSS() (error, RSS) {
 		items = append(items, Item{
 			Title:       title,
 			Link:        linkUrl.String(),
-			Description: title,
+			Description: description,
 			PubDate:     pubDate,
 			GUID:        linkUrl.String(),
 		})
