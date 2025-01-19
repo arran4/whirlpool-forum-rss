@@ -83,7 +83,7 @@ WantedBy=timers.target
    ```
 
 #### systemd (as user)
-1. Create a systemd service file at `/home/arran/.config/systemd/user/abcjustinrss.timer`:
+1. Create a systemd service file at `$HOME/.config/systemd/user/abcjustinrss.timer`:
 ```ini
 [Unit]
 Description=ABC News Just-in RSS Feed Creator
