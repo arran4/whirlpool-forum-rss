@@ -1,7 +1,7 @@
 # README
 
 ## Overview
-This application scrapes the "Just In" section of ABC News and generates an RSS feed. 
+This application scrapes the "Kohler Report" section of ABC News and generates an RSS feed. It supports both CLI and CGI modes.
 
 ## Installation
 
@@ -14,25 +14,31 @@ This application scrapes the "Just In" section of ABC News and generates an RSS 
 ### Build and Install
 
 #### Install only (System level)
-
-Grab the latest binary here, deb, rpm, etc: https://github.com/arran4/abc-justin-rss/releases/
+Grab the latest binary here: https://github.com/arran4/abc-kohler-report/releases/
 
 #### Install and build as user (User)
-
 Install go 1.23+
 
 Run `go install`:
 ```bash
-go install github.com/arran4/abc-justin-rss/cmd/abcjustinrss@latest
+go install github.com/arran4/abc-kohler-report/cmd/abckohlerreportrss@latest
 ```
-
-This installs to `$HOME/go/bin` (typically check with `go env`)
+This installs to `$HOME/go/bin` (typically; check with `go env`).
 
 ### Usage
-#### Generate RSS Feed
+#### CLI Mode
+Generate RSS Feed:
 ```bash
-abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
+abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
 ```
+
+#### CGI Mode
+1. Place `abckohlerreportrss-cgi` in your server's CGI directory (e.g., `/var/www/htdocs/cgi-bin/abckohlerreportrss-cgi`).
+2. Ensure it is executable:
+   ```bash
+   chmod +x /var/www/htdocs/cgi-bin/abckohlerreportrss-cgi
+   ```
+3. Access it via URL (e.g., `http://example.com/cgi-bin/abckohlerreportrss-cgi`).
 
 ### Deployment
 
@@ -44,7 +50,7 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * /usr/local/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
+   */15 * * * * /usr/local/bin/abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
    ```
 
 #### rc.d (Cron Job user level)
@@ -55,20 +61,18 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * ~/go/bin/abcjustinrss -output ~/public_html/rss/abcjustinrss.xml
+   */15 * * * * ~/go/bin/abckohlerreportrss -output ~/public_html/rss/abckohlerreportrss.xml
    ```
 
-Remember to modify `~` with the correct value and `go/bin` too if you're using a custom go env location
-
 #### systemd (as root)
-1. Create a systemd service file at `/etc/systemd/system/abcjustinrss.service`:
+1. Create a systemd service file at `/etc/systemd/system/abckohlerreportrss.service`:
 ```ini
 [Unit]
-Description=ABC News Just-in RSS Feed Creator
+Description=ABC News Kohler Report RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/abcjustinrss -output /var/www/localhost/htdocs/rss/abcjustinrss.xml
+ExecStart=/usr/bin/abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
 User=apache
 Group=apache
 ```
@@ -93,21 +97,19 @@ WantedBy=default.target
 3. Reload systemd and start the service:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable --now everyhour@abcjustinrss.timer
+   sudo systemctl enable --now everyhour@abckohlerreportrss.timer
    ```
 
 #### systemd (as user)
-1. Create a systemd service file at `$HOME/.config/systemd/user/abcjustinrss.service`:
+1. Create a systemd service file at `$HOME/.config/systemd/user/abckohlerreportrss.service`:
 ```ini
 [Unit]
-Description=ABC News Just-in RSS Feed Creator
+Description=ABC News Kohler Report RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=$HOME/go/bin/abcjustinrss -output ${HOME}/public_html/rss/abcjustinrss.xml
+ExecStart=$HOME/go/bin/abckohlerreportrss -output ${HOME}/public_html/rss/abckohlerreportrss.xml
 ```
-
-Remember to modify $HOME with the correct value and `go/bin` too if you're using a custom go env location
 
 2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
 
@@ -128,7 +130,7 @@ WantedBy=default.target
 
 3. Reload systemd and start the service:
    ```bash
-   systemctl --user daemon-reload && systemctl --user enable --now everyhour@abcjustinrss.timer
+   systemctl --user daemon-reload && systemctl --user enable --now everyhour@abckohlerreportrss.timer
    ```
 
 #### Apache VirtualHost Configuration
@@ -138,7 +140,7 @@ Refer to documentation for setting up public_html directories
 
 ##### Enjoy
 
-http://localhost/~$USERNAME/rss/abcjustinrss.xml
+http://localhost/~$USERNAME/rss/abckohlerreportrss.xml
 
 ##### System
 
@@ -154,7 +156,6 @@ Add the following configuration to your Apache setup (e.g., `/etc/httpd/conf.d/r
     </Directory>
 </VirtualHost>
 ```
-
 
 #### Nginx Configuration
 ##### User
@@ -175,4 +176,3 @@ server {
     }
 }
 ```
-

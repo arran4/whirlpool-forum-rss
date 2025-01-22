@@ -1,4 +1,4 @@
-module github.com/arran4/abc-justin-rss
+module github.com/arran4/abc-kohler-report-rss
 
 go 1.23
 

@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/arran4/abc-justin-rss"
+	"github.com/arran4/abc-kohler-report-rss"
 	"io"
 	"log"
 	"os"
@@ -29,7 +29,7 @@ func main() {
 	flag.Func("o", "Output file", setOutputFile)
 	flag.Func("output", "Output file", setOutputFile)
 	flag.Parse()
-	err, rss := abcjustinrss.FetchAndParseNewsToRSS()
+	err, rss := abckohlerreport.FetchAndParseToRSS()
 	if err != nil {
 		log.Fatal("Failed to fetch and parse new rss: ", err)
 	}

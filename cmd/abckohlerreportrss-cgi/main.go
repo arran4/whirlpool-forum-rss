@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/arran4/abc-justin-rss"
+	"github.com/arran4/abc-kohler-report-rss"
 	"log"
 	"net/http"
 	"net/http/cgi"
@@ -11,7 +11,7 @@ import (
 
 func main() {
 	log.Fatal(cgi.Serve(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err, rss := abcjustinrss.FetchAndParseNewsToRSS()
+		err, rss := abckohlerreport.FetchAndParseToRSS()
 		if err != nil {
 			http.Error(w, "Failed to fetch and parse RSS", http.StatusInternalServerError)
 			return
