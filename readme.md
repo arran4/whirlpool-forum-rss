@@ -108,7 +108,7 @@ Description=ABC News Kohler Report RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=$HOME/go/bin/abckohlerreportrss -output ${HOME}/public_html/rss/abckohlerreportrss.xml
+ExecStart=%h/go/bin/abckohlerreportrss -output %h/public_html/rss/abckohlerreportrss.xml
 ```
 
 2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
