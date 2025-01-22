@@ -1,16 +1,16 @@
 version: 2
-project_name: abcjustinrss
+project_name: abckohlerreportrss
 builds:
   -
-    id: "abcjustinrss"
-    binary: "abcjustinrss"
-    dir: cmd/abcjustinrss
+    id: "abckohlerreportrss"
+    binary: "abckohlerreportrss"
+    dir: cmd/abckohlerreportrss
     env:
       - CGO_ENABLED=0
 #  -
-#    id: "abcjustinrss-cgi"
-#    binary: "abcjustinrss-cgi"
-#    dir: cmd/abcjustinrss-cgi
+#    id: "abckohlerreportrss-cgi"
+#    binary: "abckohlerreportrss-cgi"
+#    dir: cmd/abckohlerreportrss-cgi
 #    env:
 #      - CGO_ENABLED=0
 #    goos: [linux]
