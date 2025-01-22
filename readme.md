@@ -14,14 +14,14 @@ This application scrapes the "Kohler Report" section of ABC News and generates a
 ### Build and Install
 
 #### Install only (System level)
-Grab the latest binary here: https://github.com/arran4/abc-kohler-report/releases/
+Grab the latest binary here: https://github.com/arran4/abc-kohler-report-rss/releases/
 
 #### Install and build as user (User)
 Install go 1.23+
 
 Run `go install`:
 ```bash
-go install github.com/arran4/abc-kohler-report/cmd/abckohlerreportrss@latest
+go install github.com/arran4/abc-kohler-report-rss/cmd/abckohlerreportrss@latest
 ```
 This installs to `$HOME/go/bin` (typically; check with `go env`).
 
