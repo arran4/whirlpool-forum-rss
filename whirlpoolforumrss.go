@@ -71,7 +71,7 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 		firstPostAuthor := strings.TrimSpace(s.Find("td.oldest a").First().Text())
 		firstPostTime := strings.TrimSpace(s.Find("td.oldest").Contents().Last().Text())
 		lastPostAuthor := strings.TrimSpace(s.Find("td.newest span a").Text())
-		lastPostTime := strings.TrimSpace(s.Find("td.newest span").Contents().Last().Text())
+		lastPostTimeRaw := strings.TrimSpace(s.Find("td.newest span").Contents().Last().Text())
 		replies := strings.TrimSpace(s.Find("td.reps").Text())
 		tag := strings.TrimSpace(s.Find("a.group").Text())
 
@@ -82,14 +82,17 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 			"FirstPostAuthor": firstPostAuthor,
 			"FirstPostTime":   firstPostTime,
 			"LastPostAuthor":  lastPostAuthor,
-			"LastPostTime":    lastPostTime,
+			"LastPostTime":    lastPostTimeRaw,
 		}
 		var descriptionBuilder strings.Builder
 		if err := descTmpl.Execute(&descriptionBuilder, descData); err != nil {
 			return
 		}
 
-		pubDate, _ := time.Parse("2 Jan 2006 3:04 PM", lastPostTime)
+		pubDate, err := parseRelativeTime(lastPostTimeRaw)
+		if err != nil {
+			pubDate = time.Now()
+		}
 
 		items = append(items, Item{
 			Title:       fmt.Sprintf("[%s] %s", section, title),
@@ -117,4 +120,31 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 	}
 
 	return xmlData, nil
+}
+
+func parseRelativeTime(relativeTime string) (time.Time, error) {
+	now := time.Now()
+
+	if strings.Contains(relativeTime, "Yesterday") {
+		parsedTime, err := time.Parse("Yesterday at 3:04 PM", strings.Replace(relativeTime, "Yesterday", now.AddDate(0, 0, -1).Format("2 Jan 2006"), 1))
+		if err != nil {
+			return time.Time{}, err
+		}
+		return parsedTime, nil
+	} else if strings.Contains(relativeTime, " at ") {
+		weekday := strings.Fields(relativeTime)[0]
+		weekdayTime, err := time.Parse("Monday at 3:04 PM", fmt.Sprintf("%s %s", weekday, strings.Split(relativeTime, " at ")[1]))
+		if err != nil {
+			return time.Time{}, err
+		}
+		return weekdayTime, nil
+	} else if strings.Contains(relativeTime, ",") {
+		parsedTime, err := time.Parse("2006-Jan-2, 3:04 PM", relativeTime)
+		if err != nil {
+			return time.Time{}, err
+		}
+		return parsedTime, nil
+	}
+
+	return time.Time{}, fmt.Errorf("unrecognized time format: %s", relativeTime)
 }
