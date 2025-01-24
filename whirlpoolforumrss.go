@@ -64,7 +64,7 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 	}
 
 	doc.Find("#threads tbody tr.thread").Each(func(i int, s *goquery.Selection) {
-		section := strings.TrimSpace(s.Find("tr.section").PrevAll().First().Find("a.title").Text())
+		section := strings.TrimSpace(s.Closest("tr").PrevAllFiltered(".section").First().Find("a.title").Text())
 		title := strings.TrimSpace(s.Find("a.title").Text())
 		topicLink, _ := s.Find("a.title").Attr("href")
 		archiveLink := strings.Replace(topicLink, "/thread/", "/archive/", 1)
