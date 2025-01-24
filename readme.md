@@ -30,7 +30,7 @@ This installs to `$HOME/go/bin` (typically; check with `go env`).
 #### CLI Mode
 Generate RSS Feed:
 ```bash
-whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
+whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
 ```
 
 #### CGI Mode
@@ -51,7 +51,7 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * /usr/local/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
+   */15 * * * * /usr/local/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
    ```
 
 #### rc.d (Cron Job user level)
@@ -62,7 +62,7 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * ~/go/bin/whirlpoolforumrss -output ~/public_html/rss/whirlpoolforumrss.xml
+   */15 * * * * ~/go/bin/whirlpoolforumrss -output ~/public_html/rss/whirlpoolforumnewthreadsrss.xml
    ```
 
 #### systemd (as root)
@@ -73,7 +73,7 @@ Description=Whirlpool Forum RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
+ExecStart=/usr/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
 User=apache
 Group=apache
 ```
@@ -109,7 +109,7 @@ Description=Whirlpool Forum RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=%h/go/bin/whirlpoolforumrss -output %h/public_html/rss/whirlpoolforumrss.xml
+ExecStart=%h/go/bin/whirlpoolforumrss -output %h/public_html/rss/whirlpoolforumnewthreadsrss.xml
 ```
 
 2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
@@ -141,7 +141,7 @@ Refer to documentation for setting up public_html directories
 
 ##### Enjoy
 
-http://localhost/~$USERNAME/rss/whirlpoolforumrss.xml
+http://localhost/~$USERNAME/rss/whirlpoolforumnewthreadsrss.xml
 
 ##### System
 
@@ -177,3 +177,8 @@ server {
     }
 }
 ```
+
+#### Note CGI action selection:
+
+Use: `http://localhost/cgi-bin/whirlpoolforumrss-cgi?action=newthreads` or `http://localhost/cgi-bin/whirlpoolforumrss-cgi?action=popular_views` 
+for the desired view.
