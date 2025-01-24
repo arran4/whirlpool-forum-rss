@@ -1,7 +1,8 @@
 # README
 
 ## Overview
-This application scrapes the "Kohler Report" section of ABC News and generates an RSS feed. It supports both CLI and CGI modes.
+This application grabs the forum topics from Whirlpool forum's newthreads / popular_views summaries and converts them
+into an RSS feed for consumption.
 
 ## Installation
 
@@ -14,14 +15,14 @@ This application scrapes the "Kohler Report" section of ABC News and generates a
 ### Build and Install
 
 #### Install only (System level)
-Grab the latest binary here: https://github.com/arran4/abc-kohler-report-rss/releases/
+Grab the latest binary here: https://github.com/arran4/whirlpool-forum-rss/releases/
 
 #### Install and build as user (User)
 Install go 1.23+
 
 Run `go install`:
 ```bash
-go install github.com/arran4/abc-kohler-report-rss/cmd/abckohlerreportrss@latest
+go install github.com/arran4/whirlpool-forum-rss/cmd/whirlpoolforumrss@latest
 ```
 This installs to `$HOME/go/bin` (typically; check with `go env`).
 
@@ -29,16 +30,16 @@ This installs to `$HOME/go/bin` (typically; check with `go env`).
 #### CLI Mode
 Generate RSS Feed:
 ```bash
-abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
+whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
 ```
 
 #### CGI Mode
-1. Place `abckohlerreportrss-cgi` in your server's CGI directory (e.g., `/var/www/htdocs/cgi-bin/abckohlerreportrss-cgi`).
+1. Place `whirlpoolforumrss-cgi` in your server's CGI directory (e.g., `/var/www/htdocs/cgi-bin/whirlpoolforumrss-cgi`).
 2. Ensure it is executable:
    ```bash
-   chmod +x /var/www/htdocs/cgi-bin/abckohlerreportrss-cgi
+   chmod +x /var/www/htdocs/cgi-bin/whirlpoolforumrss-cgi
    ```
-3. Access it via URL (e.g., `http://example.com/cgi-bin/abckohlerreportrss-cgi`).
+3. Access it via URL (e.g., `http://example.com/cgi-bin/whirlpoolforumrss-cgi`).
 
 ### Deployment
 
@@ -50,7 +51,7 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * /usr/local/bin/abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
+   */15 * * * * /usr/local/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
    ```
 
 #### rc.d (Cron Job user level)
@@ -61,18 +62,18 @@ Add a cron job to run the script periodically:
    ```
 2. Add the following line:
    ```bash
-   */15 * * * * ~/go/bin/abckohlerreportrss -output ~/public_html/rss/abckohlerreportrss.xml
+   */15 * * * * ~/go/bin/whirlpoolforumrss -output ~/public_html/rss/whirlpoolforumrss.xml
    ```
 
 #### systemd (as root)
-1. Create a systemd service file at `/etc/systemd/system/abckohlerreportrss.service`:
+1. Create a systemd service file at `/etc/systemd/system/whirlpoolforumrss.service`:
 ```ini
 [Unit]
-Description=ABC News Kohler Report RSS Feed Creator
+Description=Whirlpool Forum RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/abckohlerreportrss -output /var/www/localhost/htdocs/rss/abckohlerreportrss.xml
+ExecStart=/usr/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumrss.xml
 User=apache
 Group=apache
 ```
@@ -97,18 +98,18 @@ WantedBy=default.target
 3. Reload systemd and start the service:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable --now everyhour@abckohlerreportrss.timer
+   sudo systemctl enable --now everyhour@whirlpoolforumrss.timer
    ```
 
 #### systemd (as user)
-1. Create a systemd service file at `$HOME/.config/systemd/user/abckohlerreportrss.service`:
+1. Create a systemd service file at `$HOME/.config/systemd/user/whirlpoolforumrss.service`:
 ```ini
 [Unit]
-Description=ABC News Kohler Report RSS Feed Creator
+Description=Whirlpool Forum RSS Feed Creator
 
 [Service]
 Type=oneshot
-ExecStart=%h/go/bin/abckohlerreportrss -output %h/public_html/rss/abckohlerreportrss.xml
+ExecStart=%h/go/bin/whirlpoolforumrss -output %h/public_html/rss/whirlpoolforumrss.xml
 ```
 
 2. Create a systemd timer file at `$HOME/.config/systemd/user/everyhour@.timer`:
@@ -130,7 +131,7 @@ WantedBy=default.target
 
 3. Reload systemd and start the service:
    ```bash
-   systemctl --user daemon-reload && systemctl --user enable --now everyhour@abckohlerreportrss.timer
+   systemctl --user daemon-reload && systemctl --user enable --now everyhour@whirlpoolforumrss.timer
    ```
 
 #### Apache VirtualHost Configuration
@@ -140,7 +141,7 @@ Refer to documentation for setting up public_html directories
 
 ##### Enjoy
 
-http://localhost/~$USERNAME/rss/abckohlerreportrss.xml
+http://localhost/~$USERNAME/rss/whirlpoolforumrss.xml
 
 ##### System
 

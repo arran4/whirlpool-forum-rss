@@ -1,4 +1,4 @@
-module github.com/arran4/abc-kohler-report-rss
+module github.com/arran4/whirlpool-forum-rss
 
 go 1.23
 

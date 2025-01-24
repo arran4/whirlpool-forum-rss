@@ -1,16 +1,16 @@
 version: 2
-project_name: abckohlerreportrss
+project_name: whirlpoolforumrss
 builds:
   -
-    id: "abckohlerreportrss"
-    binary: "abckohlerreportrss"
-    dir: cmd/abckohlerreportrss
+    id: "whirlpoolforumrss"
+    binary: "whirlpoolforumrss"
+    dir: cmd/whirlpoolforumrss
     env:
       - CGO_ENABLED=0
 #  -
-#    id: "abckohlerreportrss-cgi"
-#    binary: "abckohlerreportrss-cgi"
-#    dir: cmd/abckohlerreportrss-cgi
+#    id: "whirlpoolforumrss-cgi"
+#    binary: "whirlpoolforumrss-cgi"
+#    dir: cmd/whirlpoolforumrss-cgi
 #    env:
 #      - CGO_ENABLED=0
 #    goos: [linux]
