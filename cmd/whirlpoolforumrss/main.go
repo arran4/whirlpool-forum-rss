@@ -21,7 +21,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error creating output file: %v", err)
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		out = file
 	}
 
