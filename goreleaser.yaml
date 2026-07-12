@@ -48,7 +48,7 @@ nfpms:
     homepage: https://github.com/arran4/
     maintainer: Arran Ubels <arran@ubels.com.au>
     description: NA
-    license: GPL-3.0-only
+    license: AGPL-3.0
     formats:
       - apk
       - deb
