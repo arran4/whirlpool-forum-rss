@@ -95,7 +95,7 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 			pubDate = time.Now()
 		}
 
-		var categories []string
+		categories := make([]string, 0, 2)
 		if section != "" {
 			categories = append(categories, section)
 		}
