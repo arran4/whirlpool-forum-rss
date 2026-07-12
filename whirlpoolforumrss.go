@@ -39,7 +39,7 @@ func GenerateRSS(action string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch forum page: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
@@ -63,7 +63,7 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 		return nil, fmt.Errorf("failed to parse description template: %w", err)
 	}
 
-	doc.Find("#threads tbody tr.thread").Each(func(i int, s *goquery.Selection) {
+	doc.Find("#threads tbody tr.thread").Each(func(_ int, s *goquery.Selection) {
 		section := strings.TrimSpace(s.Closest("tr").PrevAllFiltered(".section").First().Find("a.title").Text())
 		title := strings.TrimSpace(s.Find("a.title").Text())
 		topicLink, _ := s.Find("a.title").Attr("href")
