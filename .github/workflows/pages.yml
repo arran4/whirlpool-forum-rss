@@ -1,0 +1,97 @@
+name: GitHub Pages Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    # Run once a day at 23:00 UTC (morning in AU time, just after usual daily content or as appropriate)
+    - cron: '0 23 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  route:
+    name: Route event
+    runs-on: ubuntu-latest
+    outputs:
+      run_pages: ${{ steps.route.outputs.run_pages }}
+    steps:
+      - id: route
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          run_pages=false
+
+          case "${{ github.event_name }}" in
+            push)
+              run_pages=true
+              ;;
+            workflow_dispatch)
+              run_pages=true
+              ;;
+            schedule)
+              run_pages=true
+              ;;
+          esac
+
+          echo "run_pages=$run_pages" >> "$GITHUB_OUTPUT"
+
+  gitleaks:
+    name: Secret scan
+    needs: [route]
+    if: ${{ needs.route.outputs.run_pages == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-deploy:
+    name: Build and Deploy
+    needs: [route, gitleaks]
+    if: ${{ needs.route.outputs.run_pages == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build Pages
+        run: |
+          mkdir -p public
+          # Generate HTML
+          go run scripts/build-pages.go readme.md public/index.html
+
+          # Generate RSS Feeds using the main utility
+          go run ./cmd/whirlpoolforumrss -action newthreads -output public/newthreads.xml
+          go run ./cmd/whirlpoolforumrss -action popular_views -output public/popular_views.xml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
