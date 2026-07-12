@@ -24,11 +24,12 @@ type Channel struct {
 }
 
 type Item struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	Description string `xml:"description"`
-	PubDate     string `xml:"pubDate"`
-	GUID        string `xml:"guid"`
+	Title       string   `xml:"title"`
+	Link        string   `xml:"link"`
+	Description string   `xml:"description"`
+	PubDate     string   `xml:"pubDate"`
+	GUID        string   `xml:"guid"`
+	Categories  []string `xml:"category,omitempty"`
 }
 
 func GenerateRSS(action string) ([]byte, error) {
@@ -94,12 +95,21 @@ Last Post: {{.LastPostAuthor}} ({{.LastPostTime}})`
 			pubDate = time.Now()
 		}
 
+		var categories []string
+		if section != "" {
+			categories = append(categories, section)
+		}
+		if tag != "" {
+			categories = append(categories, tag)
+		}
+
 		items = append(items, Item{
 			Title:       fmt.Sprintf("[%s] %s", section, title),
 			Link:        fmt.Sprintf("https://forums.whirlpool.net.au%s", archiveLink),
 			Description: descriptionBuilder.String(),
 			PubDate:     pubDate.Format(time.RFC1123),
 			GUID:        fmt.Sprintf("https://forums.whirlpool.net.au%s", topicLink),
+			Categories:  categories,
 		})
 	})
 
