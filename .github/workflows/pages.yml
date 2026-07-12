@@ -1,0 +1,58 @@
+name: Deploy RSS and Markdown to GitHub Pages
+
+on:
+  schedule:
+    # 8:30 PM AEST is 10:30 AM UTC
+    - cron: '30 10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+
+      - name: Build site directory
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p public/rss
+          # Generate index.html from readme.md using a Go-based markdown to HTML converter
+          gh release download -R arran4/fork-mdtohtml -p "*linux_amd64.tar.gz" -O - | tar xvz -C /tmp
+          /tmp/mdtohtml readme.md
+          echo '<!DOCTYPE html><html><head><title>Whirlpool Forum RSS</title></head>' > public/index.html
+          cat readme.html >> public/index.html
+          echo '</html>' >> public/index.html
+          # Generate RSS feed
+          go run ./cmd/whirlpoolforumrss -output public/rss/whirlpoolforumrss.xml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

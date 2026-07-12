@@ -7,24 +7,35 @@ builds:
     dir: cmd/whirlpoolforumrss
     env:
       - CGO_ENABLED=0
-#  -
-#    id: "whirlpoolforumrss-cgi"
-#    binary: "whirlpoolforumrss-cgi"
-#    dir: cmd/whirlpoolforumrss-cgi
-#    env:
-#      - CGO_ENABLED=0
-#    goos: [linux]
-#    goarch: [amd64, arm64]
-#    flags: ["-tags=netgo", "-trimpath"]
+  -
+    id: "whirlpoolforumrss-cgi"
+    binary: "whirlpoolforumrss-cgi"
+    dir: cmd/whirlpoolforumrss-cgi
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags: ["-tags=netgo", "-trimpath"]
 archives:
   -
+    id: default
+    builds:
+      - whirlpoolforumrss
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
+  -
+    id: cgi
+    builds:
+      - whirlpoolforumrss-cgi
+    name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        formats: ["none"]
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
@@ -37,7 +48,7 @@ nfpms:
     homepage: https://github.com/arran4/
     maintainer: Arran Ubels <arran@ubels.com.au>
     description: NA
-    license: Private
+    license: AGPL-3.0
     formats:
       - apk
       - deb
