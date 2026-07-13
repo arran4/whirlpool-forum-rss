@@ -36,6 +36,11 @@ func main() {
 </body>
 </html>`, htmlOutput)
 
+	err = os.MkdirAll("public", 0755)
+	if err != nil {
+		log.Fatalf("Error creating directory: %v", err)
+	}
+
 	err = os.WriteFile("public/index.html", []byte(fullHTML), 0644)
 	if err != nil {
 		log.Fatalf("Error writing file: %v", err)
