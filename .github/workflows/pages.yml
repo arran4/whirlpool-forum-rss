@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
           check-latest: true
@@ -37,22 +37,18 @@ jobs:
         run: |
           mkdir -p public/rss
           # Generate index.html from readme.md using a Go-based markdown to HTML converter
-          gh release download -R arran4/fork-mdtohtml -p "*linux_amd64.tar.gz" -O - | tar xvz -C /tmp
-          /tmp/mdtohtml readme.md
-          echo '<!DOCTYPE html><html><head><title>Whirlpool Forum RSS</title></head>' > public/index.html
-          cat readme.html >> public/index.html
-          echo '</html>' >> public/index.html
+          go run ./scripts/mdtohtml.go
           # Generate RSS feed
           go run ./cmd/whirlpoolforumrss -output public/rss/whirlpoolforumrss.xml
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: './public'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

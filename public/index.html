@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Whirlpool Forum RSS</title>
+<meta charset="utf-8">
+</head>
+<body>
+<h1 id="readme">README</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>This application grabs the forum topics from Whirlpool forum&rsquo;s newthreads / popular_views summaries and converts them
+into an RSS feed for consumption.</p>
+
+<h2 id="installation">Installation</h2>
+
+<h3 id="prerequisites">Prerequisites</h3>
+
+<ul>
+<li><strong>Go</strong> (if building from source)</li>
+</ul>
+
+<h4 id="optional">Optional</h4>
+
+<ul>
+<li><strong>Apache or Nginx</strong> (for serving RSS files)</li>
+</ul>
+
+<h3 id="build-and-install">Build and Install</h3>
+
+<h4 id="install-only-system-level">Install only (System level)</h4>
+
+<p>Grab the latest binary here: <a href="https://github.com/arran4/whirlpool-forum-rss/releases/" target="_blank">https://github.com/arran4/whirlpool-forum-rss/releases/</a></p>
+
+<h4 id="install-and-build-as-user-user">Install and build as user (User)</h4>
+
+<p>Install go 1.23+</p>
+
+<p>Run <code>go install</code>:</p>
+
+<pre><code class="language-bash">go install github.com/arran4/whirlpool-forum-rss/cmd/whirlpoolforumrss@latest
+</code></pre>
+
+<p>This installs to <code>$HOME/go/bin</code> (typically; check with <code>go env</code>).</p>
+
+<h3 id="usage">Usage</h3>
+
+<h4 id="cli-mode">CLI Mode</h4>
+
+<p>Generate RSS Feed:</p>
+
+<pre><code class="language-bash">whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
+</code></pre>
+
+<h4 id="cgi-mode">CGI Mode</h4>
+
+<ol>
+<li>Place <code>whirlpoolforumrss-cgi</code> in your server&rsquo;s CGI directory (e.g., <code>/var/www/htdocs/cgi-bin/whirlpoolforumrss-cgi</code>).</li>
+<li>Ensure it is executable:
+
+<pre><code class="language-bash">
+chmod +x /var/www/htdocs/cgi-bin/whirlpoolforumrss-cgi
+</code></pre>
+</li>
+<li>Access it via URL (e.g., <code>http://example.com/cgi-bin/whirlpoolforumrss-cgi</code>).</li>
+</ol>
+
+<h3 id="deployment">Deployment</h3>
+
+<h4 id="rc-d-cron-job-system-level">rc.d (Cron Job system level)</h4>
+
+<p>Add a cron job to run the script periodically:
+1. Edit the root crontab:</p>
+
+<pre><code class="language-bash">   sudo crontab -e
+</code></pre>
+
+<ol>
+<li>Add the following line:
+
+<pre><code class="language-bash">
+*/15 * * * * /usr/local/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
+</code></pre>
+</li>
+</ol>
+
+<h4 id="rc-d-cron-job-user-level">rc.d (Cron Job user level)</h4>
+
+<p>Add a cron job to run the script periodically:
+1. Edit the user&rsquo;s crontab:</p>
+
+<pre><code class="language-bash">   crontab -e
+</code></pre>
+
+<ol>
+<li>Add the following line:
+
+<pre><code class="language-bash">
+*/15 * * * * ~/go/bin/whirlpoolforumrss -output ~/public_html/rss/whirlpoolforumnewthreadsrss.xml
+</code></pre>
+</li>
+</ol>
+
+<h4 id="systemd-as-root">systemd (as root)</h4>
+
+<ol>
+<li>Create a systemd service file at <code>/etc/systemd/system/whirlpoolforumrss.service</code>:</li>
+</ol>
+
+<pre><code class="language-ini">[Unit]
+Description=Whirlpool Forum RSS Feed Creator
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/whirlpoolforumrss -output /var/www/localhost/htdocs/rss/whirlpoolforumnewthreadsrss.xml
+User=apache
+Group=apache
+</code></pre>
+
+<ol>
+<li>Create a systemd timer file at <code>/etc/systemd/system/everyhour@.timer</code>:</li>
+</ol>
+
+<pre><code class="language-ini">[Unit]
+Description=Monthly Timer for %i service
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+AccuracySec=1h
+RandomizedDelaySec=1h
+Persistent=true
+Unit=%i.service
+
+[Install]
+WantedBy=default.target
+</code></pre>
+
+<ol>
+<li>Reload systemd and start the service:
+
+<pre><code class="language-bash">
+sudo systemctl daemon-reload
+sudo systemctl enable --now everyhour@whirlpoolforumrss.timer
+</code></pre>
+</li>
+</ol>
+
+<h4 id="systemd-as-user">systemd (as user)</h4>
+
+<ol>
+<li>Create a systemd service file at <code>$HOME/.config/systemd/user/whirlpoolforumrss.service</code>:</li>
+</ol>
+
+<pre><code class="language-ini">[Unit]
+Description=Whirlpool Forum RSS Feed Creator
+
+[Service]
+Type=oneshot
+ExecStart=%h/go/bin/whirlpoolforumrss -output %h/public_html/rss/whirlpoolforumnewthreadsrss.xml
+</code></pre>
+
+<ol>
+<li>Create a systemd timer file at <code>$HOME/.config/systemd/user/everyhour@.timer</code>:</li>
+</ol>
+
+<pre><code class="language-ini">[Unit]
+Description=Monthly Timer for %i service
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+AccuracySec=1h
+RandomizedDelaySec=1h
+Persistent=true
+Unit=%i.service
+
+[Install]
+WantedBy=default.target
+</code></pre>
+
+<ol>
+<li>Reload systemd and start the service:
+
+<pre><code class="language-bash">
+systemctl --user daemon-reload &amp;&amp; systemctl --user enable --now everyhour@whirlpoolforumrss.timer
+</code></pre>
+</li>
+</ol>
+
+<h4 id="apache-virtualhost-configuration">Apache VirtualHost Configuration</h4>
+
+<h5 id="user">User</h5>
+
+<p>Refer to documentation for setting up public_html directories</p>
+
+<h5 id="enjoy">Enjoy</h5>
+
+<p><a href="http://localhost/~$USERNAME/rss/whirlpoolforumnewthreadsrss.xml" target="_blank">http://localhost/~$USERNAME/rss/whirlpoolforumnewthreadsrss.xml</a></p>
+
+<h5 id="system">System</h5>
+
+<p>Add the following configuration to your Apache setup (e.g., <code>/etc/httpd/conf.d/rss.conf</code>):</p>
+
+<pre><code class="language-apache">&lt;VirtualHost *:80&gt;
+    ServerName example.com
+    DocumentRoot /var/www/localhost/htdocs/rss
+    &lt;Directory &quot;/var/www/localhost/htdocs/rss&quot;&gt;
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<h4 id="nginx-configuration">Nginx Configuration</h4>
+
+<h5 id="user-1">User</h5>
+
+<p>Refer to documentation for setting up public_html directories</p>
+
+<h5 id="system-1">System</h5>
+
+<p>Add this to your Nginx server block:</p>
+
+<pre><code class="language-nginx">server {
+    listen 80;
+    server_name example.com;
+
+    location /rss/ {
+        root /var/www/localhost/htdocs;
+        autoindex on;
+    }
+}
+</code></pre>
+
+<h4 id="note-cgi-action-selection">Note CGI action selection:</h4>
+
+<p>Use: <code>http://localhost/cgi-bin/whirlpoolforumrss-cgi?action=newthreads</code> or <code>http://localhost/cgi-bin/whirlpoolforumrss-cgi?action=popular_views</code>
+for the desired view.</p>
+
+</body>
+</html>
