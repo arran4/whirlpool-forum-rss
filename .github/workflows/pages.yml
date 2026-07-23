@@ -43,7 +43,7 @@ jobs:
           cat readme.html >> public/index.html
           echo '</html>' >> public/index.html
           # Generate RSS feed
-          go run ./cmd/whirlpoolforumrss -output public/rss/whirlpoolforumrss.xml || curl -fLo public/rss/whirlpoolforumrss.xml https://arran4.github.io/whirlpool-forum-rss/rss/whirlpoolforumrss.xml || true
+          go run ./cmd/whirlpoolforumrss -output public/rss/whirlpoolforumrss.xml || curl -fLo public/rss/whirlpoolforumrss.xml https://arran4.github.io/whirlpool-forum-rss/rss/whirlpoolforumrss.xml
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
