@@ -36,14 +36,38 @@ func GenerateRSS(action string) ([]byte, error) {
 	baseURL := "https://forums.whirlpool.net.au/forum/"
 	url := fmt.Sprintf("%s?action=%s", baseURL, action)
 
-	resp, err := http.Get(url)
+	var resp *http.Response
+	var err error
+	maxRetries := 3
+
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		req, reqErr := http.NewRequest("GET", url, nil)
+		if reqErr != nil {
+			return nil, fmt.Errorf("failed to create request: %w", reqErr)
+		}
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+
+		resp, err = http.DefaultClient.Do(req)
+		if err == nil && resp.StatusCode == http.StatusOK {
+			break
+		}
+
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
+
+		if attempt < maxRetries {
+			time.Sleep(5 * time.Second)
+		}
+	}
+
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch forum page: %w", err)
+		return nil, fmt.Errorf("failed to fetch forum page after %d attempts: %w", maxRetries, err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %d after %d attempts", resp.StatusCode, maxRetries)
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
