@@ -35,6 +35,7 @@ on:
         - release-rc
         - release-alpha
         - monthly-maintenance
+        - deploy-pages
       release_version_override:
         description: "Optional explicit release version (for example 2.4.0 or 2.4.0-rc.2)"
         required: false
@@ -47,6 +48,7 @@ on:
         type: boolean
   schedule:
     # preferred heavy monthly run (quota reset strategy)
+  - cron: '30 10 * * *'
   - cron: '17 3 1 * *'
     # optional nightly lightweight checks
   - cron: '41 2 * * *'
@@ -64,6 +66,8 @@ permissions:
   checks: write
   packages: write
   security-events: write
+  pages: write
+  id-token: write
 
 jobs:
   route:
@@ -111,6 +115,9 @@ jobs:
             ;;
           workflow_dispatch)
             run_code_checks=true
+            if [[ "${{ inputs.mode }}" == "deploy-pages" ]]; then
+              run_pages=true
+            fi
             if [[ "${{ inputs.mode }}" == release-* ]]; then
               run_release=true
             run_pages=true
@@ -125,6 +132,9 @@ jobs:
             ;;
           schedule)
             run_code_checks=true
+            if [[ "${{ github.event.schedule }}" == "30 10 * * *" ]]; then
+              run_pages=true
+            fi
             if [[ "${{ github.event.schedule }}" == "17 3 1 * *" ]]; then
               is_monthly=true
             fi
@@ -583,3 +593,47 @@ jobs:
             gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/$id || true
           fi
         done
+
+  pages:
+    name: Deploy to GitHub Pages
+    needs: [route]
+    if: ${{ needs.route.outputs.run_pages == 'true' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+
+      - name: Build site directory
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p public/rss
+          # Generate index.html from readme.md using a Go-based markdown to HTML converter
+          gh release download -R arran4/fork-mdtohtml -p "*linux_amd64.tar.gz" -O - | tar xvz -C /tmp
+          /tmp/mdtohtml readme.md
+          echo '<!DOCTYPE html><html><head><title>Whirlpool Forum RSS</title></head>' > public/index.html
+          cat readme.html >> public/index.html
+          echo '</html>' >> public/index.html
+          # Generate RSS feed
+          go run ./cmd/whirlpoolforumrss -output public/rss/whirlpoolforumrss.xml || curl -fLo public/rss/whirlpoolforumrss.xml https://arran4.github.io/whirlpool-forum-rss/rss/whirlpoolforumrss.xml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
